@@ -1,8 +1,8 @@
 public class Person {
-  // attribution
-  int age;
-  char gender;
-  boolean smart;
+  // instance variable
+  private int age;
+  private char gender;
+  private boolean smart;
 
   public void setAge(int a) {
     this.age = a + 1;
@@ -37,10 +37,5 @@ public class Person {
     Betty.setGender('F');
     Chris.setSmart(true);
 
-   public computer(int ram, int weight, String color){
-    this.ram = ram;
-    this.weight = weight;
-    this.color = color;
-   }
   }
 }
