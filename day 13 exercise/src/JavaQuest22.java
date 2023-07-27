@@ -28,5 +28,21 @@ public class JavaQuest22 {
 
   public static int findDifferent(int n) {
     // code here
+    String str = Integer.toString(n);
+    int leng = str.length();
+    int prod = 1, sum = 0;
+
+    for (int i = 0; i < leng; i++) {
+      if (leng > 1) {
+        prod = prod * (str.charAt(i) - '0');
+        // System.out.println(str.charAt(i) - '0');
+        // System.out.println(prod);
+        sum = sum + str.charAt(i) - '0';
+      } else {
+        return 0;
+      }
+    }
+    return Math.abs(sum - prod);
+
   }
 }

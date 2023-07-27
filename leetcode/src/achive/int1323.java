@@ -1,3 +1,5 @@
+package achive;
+
 public class int1323 {
 
   for (int i = 0; i < num.length; i++){

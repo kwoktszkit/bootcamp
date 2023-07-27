@@ -1,3 +1,5 @@
+package achive;
+
 public class a485 {
   int max = 0;
   int count = 0;

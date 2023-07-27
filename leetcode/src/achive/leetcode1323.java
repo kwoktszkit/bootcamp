@@ -1,3 +1,5 @@
+package achive;
+
 public class leetcode1323 {
   // public int maximum69Number(int num){}
   public static void main(String[] args) {

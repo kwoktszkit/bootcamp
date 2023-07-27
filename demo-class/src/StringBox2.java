@@ -38,6 +38,9 @@ public class StringBox2 {
 
   public String toString() {
     return String.valueOf(this.string);
+
+  }
+
   }
 
   public static void main(String[] args) {

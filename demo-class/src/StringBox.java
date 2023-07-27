@@ -40,6 +40,14 @@ public class StringBox {
 
   }
 
+  public char[] toCharArray(){
+    char[] chs = new char[this.string.length()];
+    for(int i = 0; i < chs.length; i++){
+      chs[i] = this.string.charAt(i);
+
+    }
+    return chs;
+
   public String toString() {
     return this.string;
   }

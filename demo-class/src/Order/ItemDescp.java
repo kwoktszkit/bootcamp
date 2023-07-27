@@ -18,6 +18,7 @@ public class ItemDescp {
     Transaction t2 = new Transaction(2, itemdescp2, 7, 20.05);
     Order order = new Order(new Transaction[] { t, t2 });
 
+    System.out.println(order.getTotal());
   }
 
 }
