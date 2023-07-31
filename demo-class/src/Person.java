@@ -37,5 +37,9 @@ public class Person {
     Betty.setGender('F');
     Chris.setSmart(true);
 
+    if(boolean x == true){do sth;}
+
+    if(x : do sth)
+
   }
 }
