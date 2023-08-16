@@ -25,6 +25,17 @@ public class Laptop extends Machine {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof Laptop))
+      return false;
+    Laptop laptop = (Laptop) o;
+    return Objects.equals(laptop.keyboard, this.keyboard)
+        && Objects.equals(laptop.monitor, this.monitor);
+  }
+
+  @Override
   public void start() {
     System.out.println("Laptop start");
   }
