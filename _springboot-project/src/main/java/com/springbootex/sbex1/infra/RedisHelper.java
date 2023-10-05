@@ -9,18 +9,27 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.web.client.ResourceAccessException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class RedisHelper {
 
   // key value pair, key must be unqiue, most likely String
   private RedisTemplate<String, Object> redisTemplate;
 
-  public RedisHelper(RedisTemplate<String, Object> redisTemplate) {
-    this.redisTemplate = redisTemplate;
-  }
+  private ObjectMapper objectMapper;
 
-  public RedisHelper(RedisConnectionFactory factory, ObjectMapper redisObjectMapper) {
-    this.redisTemplate = template(factory, redisObjectMapper);
+  // public RedisHelper(RedisTemplate<String, Object> redisTemplate) {
+  // this.redisTemplate = redisTemplate;
+  // }
+
+  public RedisHelper(RedisConnectionFactory factory) {
+    ObjectMapper objectMapper = new ObjectMapper() //
+        .registerModule(new ParameterNamesModule())
+        .registerModule(new Jdk8Module()) //
+        .registerModule(new JavaTimeModule());
+    this.redisTemplate = template(factory, objectMapper);
   }
 
   public static RedisTemplate<String, Object> template(
@@ -32,8 +41,8 @@ public class RedisHelper {
     // redisTemplate.setHashKeySerializer(RedisSerializer.string());
     // redisTemplate.setHashValueSerializer(RedisSerializer.json());
     redisTemplate.afterPropertiesSet();
-    Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
-    serializer.setObjectMapper(redisObjectMapper);
+    Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(redisObjectMapper,
+        Object.class);
     redisTemplate.setValueSerializer(serializer);
     return redisTemplate;
   }
@@ -49,12 +58,9 @@ public class RedisHelper {
 
   public boolean set(String key, Object value, long time) {
     try {
-      System.out.println("set before=" + key + " " + value + " " + time);
       redisTemplate.opsForValue().set(key, value, time, TimeUnit.MILLISECONDS);
-      System.out.println("set after");
       return true;
     } catch (Exception e) {
-      System.out.println("redis.set=" + e.getMessage());
       throw new ResourceAccessException(
           "Redis unavailable (set method) msg=" + e.getMessage());
     }
@@ -63,9 +69,7 @@ public class RedisHelper {
   public Object get(String key) {
     try {
       if (key != null) {
-        System.out.println("!!!!!!!!!!!!!!!!");
         Object object = redisTemplate.opsForValue().get(key);
-        System.out.println("!!!!!!!!!!!!!!!!= " + object);
         return object;
       }
       return null;
@@ -87,7 +91,7 @@ public class RedisHelper {
     }
   }
 
-  public static String key(String head, String source) {
+  public static String formatKey(String head, String source) {
     return head.concat(":").concat(source);
   }
 }

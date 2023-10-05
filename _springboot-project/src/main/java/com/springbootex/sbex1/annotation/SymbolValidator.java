@@ -2,7 +2,8 @@ package com.springbootex.sbex1.annotation;
 
 import java.util.Objects;
 import com.springbootex.sbex1.config.AppStartRunner;
-import com.springbootex.sbex1.model.dto.SymbolDTO;
+import com.springbootex.sbex1.model.dto.finnhub.resp.SymbolDTO;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

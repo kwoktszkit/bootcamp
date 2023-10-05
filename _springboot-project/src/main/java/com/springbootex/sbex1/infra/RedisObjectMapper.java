@@ -14,4 +14,5 @@ public class RedisObjectMapper {
         .registerModule(new JavaTimeModule());
     return redisObjectMapper;
   }
+
 }

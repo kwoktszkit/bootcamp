@@ -1,19 +1,17 @@
 package com.springbootex.sbex1.model.mapper;
 
-import java.time.LocalDate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import com.springbootex.sbex1.entity.Stock;
 import com.springbootex.sbex1.entity.StockPrice;
 import com.springbootex.sbex1.entity.StockSymbol;
-import com.springbootex.sbex1.model.CompanyProfile;
-import com.springbootex.sbex1.model.Quote;
-import com.springbootex.sbex1.model.Symbol;
-import com.springbootex.sbex1.model.dto.CompanyProfileDTO;
-import com.springbootex.sbex1.model.dto.StockDTO;
-import jakarta.persistence.Column;
+
+import com.springbootex.sbex1.model.dto.finnhub.resp.CompanyProfile2DTO;
+import com.springbootex.sbex1.model.dto.finnhub.resp.QuoteDTO;
+import com.springbootex.sbex1.model.dto.finnhub.resp.SymbolDTO;
+import com.springbootex.sbex1.model.dto.web.resp.CompanyProfileDTO;
+import com.springbootex.sbex1.model.dto.web.resp.StockDTO;
 
 @Component
 public class FinnhubMapper {
@@ -21,7 +19,7 @@ public class FinnhubMapper {
   @Autowired
   private ModelMapper modelMapper;
 
-  public StockDTO map(CompanyProfile companyProfile, Quote quote) {
+  public StockDTO map(CompanyProfile2DTO companyProfile, QuoteDTO quote) {
     return StockDTO.builder() //
         .companyProfile(
             modelMapper.map(companyProfile, CompanyProfileDTO.class)) //
@@ -33,13 +31,13 @@ public class FinnhubMapper {
         .build();
   }
 
-  public StockSymbol map(Symbol symbol) {
+  public StockSymbol map(SymbolDTO symbol) {
     return StockSymbol.builder() //
         .symbol(symbol.getSymbol()) //
         .build();
   }
 
-  public Stock map(CompanyProfile profile) {
+  public Stock map(CompanyProfile2DTO profile) {
     return Stock.builder() //
         .country(profile.getCountry()) //
         .companyName(profile.getCompanyName()) //
@@ -49,14 +47,11 @@ public class FinnhubMapper {
         .build();
   }
 
-  public StockPrice map(Quote quote) {
+  public StockPrice map(QuoteDTO quote) {
     return StockPrice.builder() //
-        .currentPrice(quote.getCurrentPrice())
-        .dayHigh(quote.getDayHigh())
-        .dayHigh(quote.getDayHigh())
-        .dayLow(quote.getDayLow())
-        .dayOpen(quote.getDayOpen())
-        .prevDayClose(quote.getPrevDayClose())
+        .currentPrice(quote.getCurrentPrice()).dayHigh(quote.getDayHigh())
+        .dayHigh(quote.getDayHigh()).dayLow(quote.getDayLow())
+        .dayOpen(quote.getDayOpen()).prevDayClose(quote.getPrevDayClose())
         .build();
   }
 

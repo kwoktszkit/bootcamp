@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springbootex.sbex1.infra.AppleRestClient;
@@ -20,18 +21,13 @@ public class AppConfig {
   private String token;
 
   @Bean
-  ModelMapper modelMapper() {
-    return new ModelMapper();
-  }
-
-  @Bean
   String finnhubToken() {
     return token;
   }
 
   @Bean
-  AppleRestClient stockService(RestTemplate restTemplate) {
-    return new AppleRestClient(restTemplate);
+  ModelMapper modelMapper() {
+    return new ModelMapper();
   }
 
   @Bean
@@ -40,13 +36,8 @@ public class AppConfig {
   }
 
   @Bean
-  ObjectMapper redisObjectMapper() {
-    return RedisObjectMapper.of();
+  RedisHelper redisProfileHelper(RedisConnectionFactory factory) {
+    return new RedisHelper(factory);
   }
 
-  @Bean
-  RedisHelper redisProfileHelper(RedisConnectionFactory factory,
-      ObjectMapper redisObjectMapper) {
-    return new RedisHelper(factory, redisObjectMapper);
-  }
 }

@@ -12,7 +12,7 @@ import com.springbootex.sbex1.entity.StockPrice;
 import com.springbootex.sbex1.exception.AppException;
 import com.springbootex.sbex1.infra.Code;
 import com.springbootex.sbex1.infra.Protocol;
-import com.springbootex.sbex1.model.Quote;
+import com.springbootex.sbex1.model.dto.finnhub.resp.QuoteDTO;
 import com.springbootex.sbex1.repository.StockPriceRepository;
 import com.springbootex.sbex1.repository.StockRepository;
 import com.springbootex.sbex1.service.StockPriceService;
@@ -44,7 +44,7 @@ public class StockPriceServiceImpl implements StockPriceService {
   private String quoteEndpoint;
 
   @Override
-  public Quote getQuote(String symbol) throws AppException {
+  public QuoteDTO getQuote(String symbol) throws AppException {
     String url = UriComponentsBuilder.newInstance() //
         .scheme(Protocol.HTTPS.name()) //
         .host(domain) //
@@ -56,7 +56,7 @@ public class StockPriceServiceImpl implements StockPriceService {
         .toUriString();
     System.out.println("url=" + url);
     try {
-      return restTemplate.getForObject(url, Quote.class);
+      return restTemplate.getForObject(url, QuoteDTO.class);
     } catch (RestClientException e) {
       throw new AppException(Code.FINNHUB_QUOTE_NOTFOUND);
     }

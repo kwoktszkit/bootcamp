@@ -11,6 +11,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springbootex.sbex1.entity.Stock;
 import com.springbootex.sbex1.entity.StockPrice;
@@ -19,8 +22,8 @@ import com.springbootex.sbex1.infra.Code;
 import com.springbootex.sbex1.infra.Protocol;
 import com.springbootex.sbex1.infra.RedisHelper;
 import com.springbootex.sbex1.model.CompanyProfile;
-import com.springbootex.sbex1.model.Quote;
-import com.springbootex.sbex1.model.dto.CompanyProfileDTO;
+import com.springbootex.sbex1.model.dto.finnhub.resp.QuoteDTO;
+import com.springbootex.sbex1.model.dto.web.resp.CompanyProfileDTO;
 import com.springbootex.sbex1.model.mapper.FinnhubMapper;
 import com.springbootex.sbex1.repository.StockPriceRepository;
 import com.springbootex.sbex1.repository.StockRepository;
@@ -29,8 +32,11 @@ import com.springbootex.sbex1.service.CompanyService;
 import com.springbootex.sbex1.service.StockPriceService;
 import com.springbootex.sbex1.service.StockSymbolService;
 import com.springbootex.sbex1.exception.AppException;
+import com.springbootex.sbex1.model.dto.finnhub.resp.CompanyProfile2DTO;
+import com.springbootex.sbex1.model.dto.finnhub.resp.QuoteDTO;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.val;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
@@ -82,7 +88,7 @@ public class CompanyServiceImpl implements CompanyService {
         .forEach(symbol -> {
           try {
             // Get Compnay Profile 2 (New)
-            CompanyProfile newProfile = this.getCompanyProfile(symbol.getSymbol());
+            CompanyProfile2DTO newProfile = this.getCompanyProfile(symbol.getSymbol());
 
             // Old Stock
             Optional<Stock> oldStock = stockRepository.findByStockSymbol(symbol);
@@ -105,7 +111,7 @@ public class CompanyServiceImpl implements CompanyService {
               System.out.println("completed symbol=" + symbol.getSymbol());
 
               // Get Stock price and save a new record of price into DB
-              Quote quote = stockPriceService.getQuote(symbol.getSymbol());
+              QuoteDTO quote = stockPriceService.getQuote(symbol.getSymbol());
               StockPrice stockPrice = finnhubMapper.map(quote);
               stockPrice.setStock(stock);
               stockPriceRepository.save(stockPrice);
@@ -178,7 +184,7 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public CompanyProfile getCompanyProfile(String symbol)
+  public CompanyProfile2DTO getCompanyProfile(String symbol)
       throws AppException {
     String url = UriComponentsBuilder.newInstance() //
         .scheme(Protocol.HTTPS.name().toLowerCase()) //
@@ -189,21 +195,21 @@ public class CompanyServiceImpl implements CompanyService {
         .queryParam("token", token) //
         .build() //
         .toUriString();
-    String key = RedisHelper.key(redisKeyForProfile2, symbol);
+    String key = RedisHelper.formatKey(redisKeyForProfile2, symbol);
 
     // Invoke Company Profile 2 with Redis Handling
     try {
-      CompanyProfile profile = restTemplate.getForObject(url, CompanyProfile.class); // mocked
+      CompanyProfile2DTO profile = restTemplate.getForObject(url, CompanyProfile2DTO.class); // mocked
       if (Objects.nonNull(profile)) { // success
         redisHelper.set(key, profile, 600000000);
       } else { // fail, get from redis
-        profile = (CompanyProfile) redisHelper.get(key);
+        profile = (CompanyProfile2DTO) redisHelper.get(key);
         if (profile == null)
           throw new AppException(Code.FINNHUB_PROFILE2_NOTFOUND);
       }
       return profile;
     } catch (RestClientException e) {
-      CompanyProfile profileFromRedis = (CompanyProfile) redisHelper.get(key);
+      CompanyProfile2DTO profileFromRedis = (CompanyProfile2DTO) redisHelper.get(key);
       if (profileFromRedis == null)
         throw new AppException(Code.FINNHUB_PROFILE2_NOTFOUND);
       return profileFromRedis;

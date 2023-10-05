@@ -18,6 +18,7 @@ import com.springbootex.sbex1.entity.Stock;
 import com.springbootex.sbex1.exception.AppException;
 import com.springbootex.sbex1.infra.RedisHelper;
 import com.springbootex.sbex1.model.CompanyProfile;
+import com.springbootex.sbex1.model.dto.finnhub.resp.CompanyProfile2DTO;
 import com.springbootex.sbex1.repository.StockRepository;
 import com.springbootex.sbex1.service.CompanyService;
 
@@ -31,7 +32,8 @@ public class CompanyServiceTest {
   @MockBean // service will autowird repository
   private RestTemplate restTemplate;
 
-  @MockBean // service will autowird repository
+  // SpringBootTest already autowired redisHelper, but want to mock fake set/get
+  @MockBean
   private RedisHelper redisHelper;
 
   @Autowired // service will autowird repository
@@ -54,44 +56,49 @@ public class CompanyServiceTest {
   }
 
   @Test
-  void testUrl1ByUri() throws AppException {
+  void testUrl() throws AppException {
     String expectedUrl = "https://finnhub.io/api/v1/stock/profile2?symbol=AAPL&token="
         .concat(finnhubToken);
-    CompanyProfile mockedCompanyProfile = CompanyProfile.builder() //
+
+    CompanyProfile2DTO mockedCompanyProfile = CompanyProfile2DTO.builder() //
         .country("US") //
         .ipoDate(LocalDate.of(1988, 12, 31)) //
         .build();
 
-    Mockito.when(restTemplate.getForObject(expectedUrl, CompanyProfile.class))
+    Mockito.when(restTemplate.getForObject(expectedUrl, CompanyProfile2DTO.class))
         .thenReturn(mockedCompanyProfile);
 
-    Mockito.when(redisHelper.set("AAPL", mockedCompanyProfile, 600000000))
+    // Mock the fake set behaviour for redis
+    Mockito.when(redisHelper.set("demo-finnhub:companyprofile2:AAPL", mockedCompanyProfile, 600000000))
         .thenReturn(true);
-    System.out.println("test companyService=");
-    CompanyProfile profile = companyService.getCompanyProfile("AAPL"); // call stockRepository.findAll()
-    System.out.println("profile=" + profile);
+
+    CompanyProfile2DTO profile = companyService.getCompanyProfile("AAPL"); // call stockRepository.findAll()
+
     assertThat(profile, hasProperty("country", equalTo("US")));
+    assertThat(profile, hasProperty("ipoDate", equalTo(LocalDate.of(1988, 12, 31))));
   }
 
-  // @Test
-  // void testUrl1ByUri2() throws FinnhubException {
-  // String expectedUrl =
-  // "https://finnhub.io/api/v1/stock/profile2?symbol=AAPL&token="
-  // .concat(finnhubToken);
-  // CompanyProfile mockedCompanyProfile = CompanyProfile.builder() //
-  // .country("CN") //
-  // .ipoDate(LocalDate.of(1988, 12, 31)) //
-  // .build();
-  // Mockito.when(restTemplate.getForObject(expectedUrl, CompanyProfile.class))
-  // .thenReturn(null);
+  @Test
+  void testFakeUrl() throws AppException {
+    String expectedFakeUrl = "https://finnhub.io/api/v1/stock/fake?symbol=AAPL&token="
+        .concat(finnhubToken);
 
-  // Mockito.when(redisHelper.get("AAPL")).thenReturn(mockedCompanyProfile);
+    CompanyProfile2DTO mockedCompanyProfile = CompanyProfile2DTO.builder() //
+        .country("HK") //
+        .ipoDate(LocalDate.of(2088, 12, 31)) //
+        .build();
 
-  // System.out.println("test companyService=");
-  // CompanyProfile profile = companyService.getCompanyProfile("AAPL"); // call
-  // stockRepository.findAll()
-  // System.out.println("profile=" + profile);
-  // assertThat(profile, hasProperty("country", equalTo("CN")));
-  // }
+    Mockito.when(restTemplate.getForObject(expectedFakeUrl, CompanyProfile2DTO.class))
+        .thenReturn(null);
+
+    // Mock the fake get behaviour for redis
+    Mockito.when(redisHelper.get("demo-finnhub:companyprofile2:AAPL"))
+        .thenReturn(mockedCompanyProfile);
+
+    CompanyProfile2DTO profile = companyService.getCompanyProfile("AAPL"); // call stockRepository.findAll()
+
+    assertThat(profile, hasProperty("country", equalTo("HK")));
+    assertThat(profile, hasProperty("ipoDate", equalTo(LocalDate.of(2088, 12, 31))));
+  }
 
 }

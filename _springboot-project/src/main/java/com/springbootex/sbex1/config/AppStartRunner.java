@@ -12,8 +12,10 @@ import com.springbootex.sbex1.entity.Stock;
 import com.springbootex.sbex1.entity.StockPrice;
 import com.springbootex.sbex1.exception.AppException;
 import com.springbootex.sbex1.model.CompanyProfile;
-import com.springbootex.sbex1.model.Quote;
+import com.springbootex.sbex1.model.dto.finnhub.resp.CompanyProfile2DTO;
+import com.springbootex.sbex1.model.dto.finnhub.resp.QuoteDTO;
 import com.springbootex.sbex1.model.Symbol;
+import com.springbootex.sbex1.model.dto.finnhub.resp.SymbolDTO;
 import com.springbootex.sbex1.model.mapper.FinnhubMapper;
 import com.springbootex.sbex1.repository.StockPriceRepository;
 import com.springbootex.sbex1.repository.StockRepository;
@@ -61,7 +63,7 @@ public class AppStartRunner implements CommandLineRunner {
     stockSymbolService.deleteAll();
 
     // Call API to get all symbols
-    List<Symbol> symbols = stockSymbolService.getAllSymbols().stream()
+    List<SymbolDTO> symbols = stockSymbolService.getAllSymbols().stream()
         .filter(symbol -> stockInventory.contains(symbol.getSymbol()))
         .collect(Collectors.toList());
     System.out
@@ -72,14 +74,14 @@ public class AppStartRunner implements CommandLineRunner {
         .forEach(symbol -> {
           try {
             // 2. Get Compnay Profile 2 and insert into database
-            CompanyProfile companyProfile = companyService.getCompanyProfile(symbol.getSymbol());
+            CompanyProfile2DTO companyProfile = companyService.getCompanyProfile(symbol.getSymbol());
             Stock stock = finnhubMapper.map(companyProfile);
             stock.setStockSymbol(symbol);
             Stock storedStock = stockRepository.save(stock);
             System.out.println("completed symbol=" + symbol.getSymbol());
 
             // 3. Get Stock price and insert into database
-            Quote quote = stockPriceService.getQuote(symbol.getSymbol());
+            QuoteDTO quote = stockPriceService.getQuote(symbol.getSymbol());
             StockPrice stockPrice = finnhubMapper.map(quote);
             stockPrice.setStock(storedStock);
             stockPriceRepository.save(stockPrice);

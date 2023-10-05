@@ -1,4 +1,4 @@
-package com.springbootex.sbex1.model.dto;
+package com.springbootex.sbex1.model.dto.web.resp;
 
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;

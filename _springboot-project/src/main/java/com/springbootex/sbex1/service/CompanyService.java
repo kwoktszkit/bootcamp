@@ -4,10 +4,11 @@ import java.util.List;
 import com.springbootex.sbex1.entity.Stock;
 import com.springbootex.sbex1.exception.AppException;
 import com.springbootex.sbex1.model.CompanyProfile;
+import com.springbootex.sbex1.model.dto.finnhub.resp.CompanyProfile2DTO;
 
 public interface CompanyService {
 
-  CompanyProfile getCompanyProfile(String symbol) throws AppException;
+  CompanyProfile2DTO getCompanyProfile(String symbol) throws AppException;
 
   void refresh() throws AppException;
 

@@ -1,4 +1,4 @@
-package com.springbootex.sbex1.model.dto;
+package com.springbootex.sbex1.model.dto.web.resp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
